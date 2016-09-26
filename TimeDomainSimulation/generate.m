@@ -1,9 +1,9 @@
-%%Î´Íê³É
+%%æœªå®Œæˆ
 
 clear;
 clc;
 %%initialize PSAT and datafile.
-dataFile='dataIEEE39'; %ÏµÍ³Êı¾İÎÄ¼ş
+dataFile='dataIEEE39'; %ç³»ç»Ÿæ•°æ®æ–‡ä»¶
 initpsat;
 %initLog(['log-',dataFile,'-',datestr(clock,30),'.txt'],1000,'apparent');
 clpsat.readfile=0;
@@ -14,11 +14,11 @@ runpsat(dataFile,'data');
 runpsat('pf');
 flag=1;
 
-Settings.tf=4;%·ÂÕæÊ±¼äÎª4s
-Settings.fixt=1;%¶¨²½³¤¼ÆËã
-Settings.tstep=0.005;%Ñ¡Ôñ²½³¤Îª0.005s
+Settings.tf=4;%ä»¿çœŸæ—¶é—´ä¸º4s
+Settings.fixt=1;%å®šæ­¥é•¿è®¡ç®—
+Settings.tstep=0.005;%é€‰æ‹©æ­¥é•¿ä¸º0.005s
 
-casenum=2;%i1*i2*i3 ÕâÊÇÒ»¸ödatabaseÎÄ¼şÀïµÄÑù±¾Êı
+casenum=2;%i1*i2*i3 è¿™æ˜¯ä¸€ä¸ªdatabaseæ–‡ä»¶é‡Œçš„æ ·æœ¬æ•°
 idx = 0;
 for CT = 0.2:0.005:0.8%
     
@@ -28,95 +28,56 @@ for CT = 0.2:0.005:0.8%
     runpsat('td');
     
     
-    for i2=1:35  %¶Ô35ÌõÏßÂ·×öÑ­»·£¬Ã¿Ò»ÌõÏßÂ·µÄÁ½¶ËÄ¸ÏßÈıÏà¶ÌÂ·ºó¸ÃÏßÂ·±»ÇĞ³ı
-        Breaker.store(1)=i2;%ÉèÖÃ¹ÊÕÏÏßÂ·
+    for i2=1:35  %å¯¹35æ¡çº¿è·¯åšå¾ªç¯ï¼Œæ¯ä¸€æ¡çº¿è·¯çš„ä¸¤ç«¯æ¯çº¿ä¸‰ç›¸çŸ­è·¯åè¯¥çº¿è·¯è¢«åˆ‡é™¤
+        Breaker.store(1)=i2;%è®¾ç½®æ•…éšœçº¿è·¯
         Breaker.store(3:4)=Line.con(i2,3:4);
-        for i3=1:2  %¶ÔÁ½¶ËÄ¸Ïß·Ö±ğ×ö¶ÌÂ·
+        for i3=1:2  %å¯¹ä¸¤ç«¯æ¯çº¿åˆ†åˆ«åšçŸ­è·¯
             faulttype=(i2-1)*2+i3;
-            Fault.store(1)=Line.con(i2,i3);%¹ÊÕÏÊ±µÄÄ¸Ïß
+            Fault.store(1)=Line.con(i2,i3);%æ•…éšœæ—¶çš„æ¯çº¿
             Breaker.store(2)=Line.con(i2,i3);
             Breaker.store(7)=CT;
             Fault.store(5)=0.1;
             Fault.store(2:3)=Line.con(i2,3:4);%
-            Fault.store(6)=CT;%¹ÊÕÏÊ±¼ä´¢´æ
+            Fault.store(6)=CT;%æ•…éšœæ—¶é—´å‚¨å­˜
             
             caseindex=2*(i2-1)+i3;
             
-            runpsat('pf'); %Ëã³±Á÷
+            runpsat('pf'); %ç®—æ½®æµ
             
-            
-            %             disp('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-            %             caseindex
-            %             caseindex
-            %             caseindex
-            %             caseindex
-            %             disp('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-            %%
-            %Ö¸¶¨ÔİÌ¬ÎÈ¶¨µÄÊä³ö
-            indexGen=[31 30 32 33 34 35 36 37 38 39];%·¢µç»úµÄĞòºÅ
-            indexLoad=[3,4,7,8,12,15,16,18,20,21,23,24,25,26,27,28,29,31,39];%¸ººÉµÄĞòºÅ
+            indexGen=[31 30 32 33 34 35 36 37 38 39];%å‘ç”µæœºçš„åºå·
+            indexLoad=[3,4,7,8,12,15,16,18,20,21,23,24,25,26,27,28,29,31,39];%è´Ÿè·çš„åºå·
             indexOmega=Syn.omega;
             
-            StateVariable=1:1:DAE.n;%×´Ì¬±äÁ¿
-            ActivePowerInjection=(DAE.n+DAE.m+1):1:(DAE.n + DAE.m + Bus.n);%½ÚµãÓĞ¹¦×¢Èë
-            ReActivePowerInjection=(DAE.n + DAE.m + Bus.n+1):1:(DAE.n + DAE.m + 2*Bus.n);%½ÚµãÎŞ¹¦×¢Èë
-            ActivePower_ij=(DAE.n + DAE.m + 2*Bus.n+1):1:(DAE.n + DAE.m + 2*Bus.n+Line.n);%ÏßÂ·ÓĞ¹¦
-            ReActivePower_ij=(DAE.n + DAE.m + 2*Bus.n+2*Line.n+1):1:(DAE.n + DAE.m + 2*Bus.n+3*Line.n);%ÏßÂ·ÎŞ¹¦
-            VoltageAngles=(DAE.n+1):(DAE.n+Bus.n);%½ÚµãµçÑ¹·ùÖµ
-            VoltageMagnitudes=(DAE.n+Bus.n+1):(DAE.n+2*Bus.n);%½ÚµãµçÑ¹Ïà½Ç
+            StateVariable=1:1:DAE.n;%çŠ¶æ€å˜é‡
+            VoltageAngles=(DAE.n+1):(DAE.n+Bus.n);%èŠ‚ç‚¹ç”µå‹å¹…å€¼
+            VoltageMagnitudes=(DAE.n+Bus.n+1):(DAE.n+2*Bus.n);%èŠ‚ç‚¹ç”µå‹ç›¸è§’
             %=========================================================================%
             
-            %Êä³öµÄÅÅÁĞË³ĞòÎª£º·¢µç»úµÄ×ª×Ó½Ç¡¢·¢µç»ú×ªËÙ¡¢·¢µç»úµÄÓĞ¹¦×¢Èë¡¢·¢µç»úµÄÎŞ¹¦×¢Èë¡¢ÏßÂ·ÓĞ¹¦¡¢ÏßÂ·ÎŞ¹¦¡¢Ä¸ÏßµçÑ¹¡¢Ä¸ÏßÏà½Ç¡¢½ÚµãÓĞ¹¦¸ººÉ¡¢½ÚµãÎŞ¹¦¸ººÉ
-            %Ö¸¶¨µÄÊ±ºòÓ¦¸ÃÓÃÁĞÏòÁ¿
+            %è¾“å‡ºçš„æ’åˆ—é¡ºåºä¸ºï¼šå‘ç”µæœºçš„è½¬å­è§’ã€æ¯çº¿ç”µå‹ã€æ¯çº¿ç›¸è§’
+            %æŒ‡å®šçš„æ—¶å€™åº”è¯¥ç”¨åˆ—å‘é‡
             Varname.fixed=0;
-            % Varname.idx=[StateVariable(indexOmega)-1,StateVariable(indexOmega),ActivePowerInjection(indexGen),ReActivePowerInjection(indexGen),ActivePower_ij,ReActivePower_ij,VoltageMagnitudes,VoltageAngles,ActivePowerInjection(indexLoad),ReActivePowerInjection(indexLoad)]';
-            Varname.idx=[StateVariable(Syn.delta),VoltageMagnitudes,VoltageAngles]';
-            
-            %%
-            runpsat('td');%ÔİÌ¬¼ÆËã¿ªÊ¼
-            
-            % for jjudge=1:length(Varout.t)
-            % if Varout.t(jjudge)>=CT
-            % % record=Varout.vars(jjudge,:);
-            % break;
-            % end
-            % end
-            
-            
-            
-            %ÅĞ¶ÏÑù±¾ÊÇ·ñÎÈ¶¨
-            theta_final=Varout.vars(end,1:10);%·¢µç»ú¹¦½ÇµÄÖÕÖµ
-            % for ijudge=1:9
-            % deltatheta(ijudge)=theta_final(ijudge+1)-theta_final(1);
-            % end
+
+            Varname.idx=[StateVariable(Syn.delta),VoltageMagnitudes,VoltageAngles];
+        
+            runpsat('td');%æš‚æ€è®¡ç®—å¼€å§‹
+
+            %åˆ¤æ–­æ ·æœ¬æ˜¯å¦ç¨³å®š
+            theta_final=Varout.vars(end,1:10);%å‘ç”µæœºåŠŸè§’çš„ç»ˆå€¼
+
             deltatheta = [];
             for i = 1:10
                 for j = 1:10
                     deltatheta(end+1)=theta_final(i)-theta_final(j);
                 end
             end
-            % if Varout.t(end)>3.8
-            %       if sum(abs(deltatheta)>6.28)>0
-            %           ifstable=-1;
-            %       else
-            %           ifstable=1;
-            %       end
-            % %      dlmwrite('Test.txt',[Varout.t(jjudge) Varout.vars(jjudge,:) ifstable ],'delimiter',' ','newline','pc','-append');
-            %      dlmwrite('Test_CT11_CT14_ieee2psat_Faultinfo_0331.txt',[faulttype Varout.t(jjudge) Varout.vars(jjudge,:) ifstable ],'delimiter',' ','-append');
-            %      dlmwrite('Test_CT11_CT14_ieee2psat_theta_Faultinfo_0331.txt',[faulttype Varout.t(jjudge) theta_final],'delimiter',' ','-append');
-            % elseif sum(abs(deltatheta)>6.28)>0 && Varout.t(end)>Varout.t(jjudge)
-            %     ifstable=-1;
-            %     dlmwrite('Test_CT11_CT14_ieee2psat_Faultinfo_0331.txt',[faulttype Varout.t(jjudge) Varout.vars(jjudge,:) ifstable ],'delimiter',' ','-append');
-            %     dlmwrite('Test_CT11_CT14_ieee2psat_theta_Faultinfo_0331.txt',[faulttype Varout.t(jjudge) theta_final],'delimiter',' ','-append');
-            % end
             
             if Varout.t(end)>3.8
                 if sum(abs(deltatheta)>6.28)>0
-                    ifstable=-1;
+                    isStable=-1;
                     disp([num2str(idx),' unstable'])
                     dlmwrite(strcat('./data_unstable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
                 else
-                    ifstable=1;
+                    isStable=1;
                     disp([num2str(idx),' stable'])
                     dlmwrite(strcat('./data_stable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
                 end
@@ -125,5 +86,3 @@ for CT = 0.2:0.005:0.8%
         end
     end
 end
-%%
-
