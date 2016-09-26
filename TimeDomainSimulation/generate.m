@@ -12,35 +12,30 @@ runpsat(dataFile,'data');
 %%
 %%modify operation condition and do power flow
 runpsat('pf');
-flag=1;
 
 Settings.tf=4;%仿真时间为4s
 Settings.fixt=1;%定步长计算
 Settings.tstep=0.005;%选择步长为0.005s
 
-casenum=2;%i1*i2*i3 这是一个database文件里的样本数
 idx = 0;
-for CT = 0.2:0.005:0.8%
-    
-    filename=strcat('database',num2str(flag));
-    
+for cutTime = 0.2:0.005:0.8%
     runpsat('pf');
     runpsat('td');
     
     
-    for i2=1:35  %对35条线路做循环，每一条线路的两端母线三相短路后该线路被切除
-        Breaker.store(1)=i2;%设置故障线路
-        Breaker.store(3:4)=Line.con(i2,3:4);
-        for i3=1:2  %对两端母线分别做短路
-            faulttype=(i2-1)*2+i3;
-            Fault.store(1)=Line.con(i2,i3);%故障时的母线
-            Breaker.store(2)=Line.con(i2,i3);
-            Breaker.store(7)=CT;
+    for breakLine=1:35  %对35条线路做循环，每一条线路的两端母线三相短路后该线路被切除
+        Breaker.store(1)=breakLine;%设置故障线路
+        Breaker.store(3:4)=Line.con(breakLine,3:4);
+        for leftOrRight=1:2  %对两端母线分别做短路
+            faulttype=(breakLine-1)*2+leftOrRight;
+            Fault.store(1)=Line.con(breakLine,leftOrRight);%故障时的母线
+            Breaker.store(2)=Line.con(breakLine,leftOrRight);
+            Breaker.store(7)=cutTime;
             Fault.store(5)=0.1;
-            Fault.store(2:3)=Line.con(i2,3:4);%
-            Fault.store(6)=CT;%故障时间储存
+            Fault.store(2:3)=Line.con(breakLine,3:4);%
+            Fault.store(6)=cutTime;%故障时间储存
             
-            caseindex=2*(i2-1)+i3;
+            caseindex=2*(breakLine-1)+leftOrRight;
             
             runpsat('pf'); %算潮流
             
@@ -77,10 +72,10 @@ for CT = 0.2:0.005:0.8%
             if Varout.t(end)>3.8
                 if isStable == 0
                     disp([num2str(idx),' unstable'])
-                    dlmwrite(strcat('./data_unstable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
+                    dlmwrite(strcat('./data_unstable/',num2str(cutTime),'_',num2str(breakLine),'_',num2str(leftOrRight)),[Varout.vars],'delimiter',',');
                 else
                     disp([num2str(idx),' stable'])
-                    dlmwrite(strcat('./data_stable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
+                    dlmwrite(strcat('./data_stable/',num2str(cutTime),'_',num2str(breakLine),'_',num2str(leftOrRight)),[Varout.vars],'delimiter',',');
                 end
             end
             idx = idx + 1;
