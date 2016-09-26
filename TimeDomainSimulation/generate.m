@@ -64,20 +64,21 @@ for CT = 0.2:0.005:0.8%
             %判断样本是否稳定
             theta_final=Varout.vars(end,1:10);%发电机功角的终值
 
-            deltatheta = [];
+            isStable = 1;
+
             for i = 1:10
-                for j = 1:10
-                    deltatheta(end+1)=theta_final(i)-theta_final(j);
+                for j = i+1:10
+                    if abs(theta_final(i) - theta_final(j)) > 6.28
+                        isStable = 0
+                    end
                 end
             end
             
             if Varout.t(end)>3.8
-                if sum(abs(deltatheta)>6.28)>0
-                    isStable=-1;
+                if isStable == 0
                     disp([num2str(idx),' unstable'])
                     dlmwrite(strcat('./data_unstable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
                 else
-                    isStable=1;
                     disp([num2str(idx),' stable'])
                     dlmwrite(strcat('./data_stable/',num2str(CT),'_',num2str(i2),'_',num2str(i3)),[Varout.vars],'delimiter',',');
                 end
